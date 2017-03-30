@@ -85,20 +85,14 @@ defmodule Absinthe.Relay.Mutation do
   # client mutation ID as part of the response.
   def call(%{state: :unresolved} = res, _) do
     case res.arguments do
-      %{input: %{client_mutation_id: mut_id} = input} ->
+      %{input: input} ->
         %{res |
           arguments: input,
-          private: Map.put(res.private, :__client_mutation_id, mut_id),
           middleware: res.middleware ++ [__MODULE__]
         }
       res ->
         res
     end
-  end
-  def call(%{state: :resolved, value: value} = res, _) when is_map(value) do
-    mut_id = res.private[:__client_mutation_id]
-
-    %{res | value: Map.put(value, :client_mutation_id, mut_id)}
   end
   def call(res, _) do
     res

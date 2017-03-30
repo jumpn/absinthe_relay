@@ -84,12 +84,6 @@ defmodule Absinthe.Relay.Mutation.Notation do
 
   @private_field_identifier_path [Absinthe.Relay, :mutation_field_identifier]
 
-  # Common for both the input and payload objects
-  defp client_mutation_id_field do
-    quote do
-      field :client_mutation_id, type: non_null(:string)
-    end
-  end
 
   #
   # INPUT
@@ -110,7 +104,7 @@ defmodule Absinthe.Relay.Mutation.Notation do
   def record_input_object!(env, base_identifier, block) do
     identifier = ident(base_identifier, :input)
     unless already_recorded?(env.module, :input_object, identifier) do
-      Notation.record_input_object!(env, identifier, [], [client_mutation_id_field(), block])
+      Notation.record_input_object!(env, identifier, [], block)
     end
   end
 
@@ -133,7 +127,7 @@ defmodule Absinthe.Relay.Mutation.Notation do
   def record_object!(env, base_identifier, block) do
     identifier = ident(base_identifier, :payload)
     unless already_recorded?(env.module, :object, identifier) do
-      Notation.record_object!(env, identifier, [], [client_mutation_id_field(), block])
+      Notation.record_object!(env, identifier, [], block)
     end
   end
 
