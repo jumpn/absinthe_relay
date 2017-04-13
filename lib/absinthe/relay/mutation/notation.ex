@@ -43,16 +43,24 @@ defmodule Absinthe.Relay.Mutation.Notation do
         end
         {ast, attrs}
     end
+
+    block_param = [
+      maybe_resolve_function,
+      block,
+      finalize()
+    ]
+
+    {:__block__, [], [head | _]} = block
+    block_param = case elem(head,0) do
+      :input -> [field_body(field_ident)] ++ block_param
+      _ -> [simple_field_body(field_ident)] ++ block_param
+    end
+
     Notation.record_field!(
       env,
       field_ident,
       Keyword.put(attrs, :type, ident(field_ident, :payload)),
-      [
-        field_body(field_ident),
-        maybe_resolve_function,
-        block,
-        finalize()
-      ]
+      block_param
     )
   end
 
@@ -67,11 +75,14 @@ defmodule Absinthe.Relay.Mutation.Notation do
     end
   end
 
+  defp simple_field_body(field_ident) do
+    quote do
+      private Absinthe.Relay, :mutation_field_identifier, unquote(field_ident)
+    end
+  end
+
   defp finalize do
     quote do
-      input do
-        # Default!
-      end
       output do
         # Default!
       end
