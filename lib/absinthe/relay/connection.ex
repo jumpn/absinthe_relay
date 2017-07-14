@@ -45,11 +45,10 @@ defmodule Absinthe.Relay.Connection do
     connection field :pets, node_type: :pet do
       resolve fn
         pagination_args, %{source: person} ->
-          connection = Absinthe.Relay.Connection.from_list(
+          Absinthe.Relay.Connection.from_list(
             Enum.map(person.pet_ids, &pet_from_id(&1)),
             pagination_args
           )
-          {:ok, connection}
         end
       end
     end
@@ -284,14 +283,13 @@ defmodule Absinthe.Relay.Connection do
   @spec from_slice(data :: list, offset :: offset) :: {:ok, t}
   @spec from_slice(data :: list, offset :: offset, opts :: from_slice_opts) :: {:ok, t}
   def from_slice(items, offset, opts \\ []) do
-    opts = Map.new(opts)
     {edges, first, last} = build_cursors(items, offset)
 
     page_info = %{
       start_cursor: first,
       end_cursor: last,
-      has_previous_page: Map.get(opts, :has_previous_page, false),
-      has_next_page: Map.get(opts, :has_next_page, false),
+      has_previous_page: Keyword.get(opts, :has_previous_page, false),
+      has_next_page: Keyword.get(opts, :has_next_page, false),
     }
     {:ok, %{edges: edges, page_info: page_info}}
   end
